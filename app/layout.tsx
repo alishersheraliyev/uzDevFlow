@@ -3,7 +3,9 @@ import React from 'react';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from '@/context/Theme';
-import Navbar from '@/components/navigation/navbar';
+import { Toaster } from '@/components/ui/toaster';
+import { SessionProvider } from 'next-auth/react';
+import { auth } from '@/auth';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -24,24 +26,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang='en' suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-          disableTransitionOnChange>
-          <Navbar />
-          {children}
-        </ThemeProvider>
-      </body>
+      <SessionProvider session={session}>
+        <body
+          className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='system'
+            enableSystem
+            disableTransitionOnChange>
+            {children}
+          </ThemeProvider>
+          <Toaster />
+        </body>
+      </SessionProvider>
     </html>
   );
 }
